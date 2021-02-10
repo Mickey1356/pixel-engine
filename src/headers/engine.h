@@ -79,6 +79,8 @@ namespace pix_eng {
 
         GLFWwindow* window = nullptr;
         static std::atomic<bool> is_running;
+
+        // graphic buffers and stuff
     };
 }
 

@@ -30,6 +30,7 @@ int test();
 int main() {
 	MyTestEngine eng;
 	eng.start();
+	eng.point(100, 100, pix_eng::Pixel(255, 0, 0, 255));
 	// if (eng.initialise(640, 480, "test")) {
 	// 	eng.start();
 	// }

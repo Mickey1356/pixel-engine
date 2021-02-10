@@ -6,7 +6,8 @@ namespace pix_eng {
     }
 
     Engine::~Engine() {
-
+        if (canvas_sprite) delete canvas_sprite;
+        if (font_sprite) delete font_sprite;
     }
 
     // USER ENGINE FUNCTIONS
@@ -152,11 +153,16 @@ namespace pix_eng {
 
     // initialises canvas sprite
     bool Engine::construct_canvas() {
+        if (canvas_sprite) delete canvas_sprite;
+
+        canvas_sprite = new Sprite(screen_width, screen_height);
         return true;
     }
 
     // compiles and loads the default font
     bool Engine::construct_font() {
+        if (font_sprite) delete font_sprite;
+        
         return true;
     }
 

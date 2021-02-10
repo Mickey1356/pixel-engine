@@ -37,6 +37,8 @@ namespace pix_eng {
     private:
         int width = 0, height = 0;
         Pixel* sprite_data = nullptr;
+        
+        // texture ids
     };
 
 }
