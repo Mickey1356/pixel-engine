@@ -13,6 +13,7 @@ class Shader {
 public:
 	unsigned int ID;
 
+	Shader();
 	Shader(const char* vertex_path, const char* fragment_path);
 
 	void use();

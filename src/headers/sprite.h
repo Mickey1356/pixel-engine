@@ -2,6 +2,7 @@
 #define SPRITE_H
 
 #include <string>
+#include <iostream>
 
 namespace pix_eng {
 
@@ -39,6 +40,7 @@ namespace pix_eng {
         Pixel* sprite_data = nullptr;
         
         // texture ids
+        unsigned int texture;
     };
 
 }

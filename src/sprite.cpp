@@ -2,15 +2,13 @@
 
 namespace pix_eng {
     // pixel constructors
-    Pixel::Pixel() {
-        r = 0; g = 0; b = 0; a = 255;
-    }
+    Pixel::Pixel() {}
     Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t a) : r{r}, g{g}, b{b}, a{a} {}
 
     // create an empty sprite
     Sprite::Sprite() {
-        sprite_data = nullptr;
         width = 0; height = 0;
+        sprite_data = nullptr;
     }
 
     // create a sprite from image
@@ -46,13 +44,19 @@ namespace pix_eng {
 
     // get pixel at (x, y)
     Pixel Sprite::get_pixel(int x, int y) {
-        if (sprite_data) return sprite_data[y * width + x];
-        else return Pixel();
+        if (x >= 0 && y >= 0 && x < width && y < height) {
+            // (height - y - 1) to make it such that (0, 0) is the top left
+            if (sprite_data) return sprite_data[(height - y - 1) * width + x];
+        }
+        return Pixel();
     }
 
     // set pixel at (x, y) to p
     void Sprite::set_pixel(int x, int y, Pixel p) {
-
+        if (x >= 0 && y >= 0 && x < width && y < height) {
+            // (height - y - 1) to make it such that (0, 0) is the top left
+            if (sprite_data) sprite_data[(height - y - 1) * width + x] = p;
+        }
     }
 
     // get a copy of this sprite

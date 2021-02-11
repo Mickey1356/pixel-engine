@@ -11,6 +11,7 @@
 #include <string>
 
 #include "sprite.h"
+#include "shader.h"
 
 namespace pix_eng {
 
@@ -49,6 +50,9 @@ namespace pix_eng {
         // compiles and loads the default font
         bool construct_font();
 
+        // draw canvas to screen
+        bool draw_canvas();        
+
     public: // drawing functions
         // draws a point at (x, y)
         void point(int x, int y, Pixel p);
@@ -67,6 +71,8 @@ namespace pix_eng {
         void sprite(int x, int y, const Sprite* sprite);
         // draws text at (x, y) with fill c
         void text(int x, int y, const std::string& text, Pixel c);
+        // clears the screen with fill c
+        void clear(Pixel c);
         
     public: // additional variables
         int screen_width = 640, screen_height = 480;
@@ -81,6 +87,13 @@ namespace pix_eng {
         static std::atomic<bool> is_running;
 
         // graphic buffers and stuff
+        unsigned int canvas_texture;
+        unsigned int canvas_vbo, canvas_vao, canvas_ebo;
+        Shader canvas_shader;
+
+        // canvas quad
+        // static float canvas_quad[];
+        // static int canvas_indices[];
     };
 }
 

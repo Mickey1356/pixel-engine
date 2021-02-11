@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <iostream>
 
 #include "shader.h"
@@ -15,11 +18,26 @@ void process_input(GLFWwindow* window);
 class MyTestEngine : public pix_eng::Engine {
 
 public:
+	int x_pos = 0;
+
 	bool create() override {
 		return true;
 	}
 
 	bool update(double delta_time) override {
+		clear(pix_eng::Pixel());
+
+		std::stringstream ss;
+		ss << 1000.0 / delta_time << " fps";
+		glfwSetWindowTitle(window, ss.str().c_str());
+
+		// rect(x_pos, 50, 300, 400, pix_eng::Pixel(), pix_eng::Pixel(x_pos % 256, 0, 0, 255));
+		// x_pos = (x_pos + 1) % screen_width;
+
+		// for (int x = 50; x < 100; x++)
+		// 	for (int y = 50; y < 100; y++)
+		// 		point(x, y, pix_eng::Pixel(rand() % 256, rand() % 256, rand() % 256, 255));
+
 		return true;
 	}
 
@@ -28,9 +46,9 @@ public:
 int test();
 
 int main() {
+	// test();
 	MyTestEngine eng;
 	eng.start();
-	eng.point(100, 100, pix_eng::Pixel(255, 0, 0, 255));
 	// if (eng.initialise(640, 480, "test")) {
 	// 	eng.start();
 	// }
@@ -59,10 +77,10 @@ int test() {
 
 	// vertex data for a square (will scale and transform later)
 	float vertices[] = {
-		-0.5f, 0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
+		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+		0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+		0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f
 	};
 
 	// index data for a square
@@ -85,10 +103,28 @@ int test() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	Shader shader("res/shaders/square.vert", "res/shaders/square.frag");
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	Shader shader("res/shaders/canvas.vert", "res/shaders/canvas.frag");
+
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load("res/images/awesomeface.png", &width, &height, &nrChannels, 0);
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	} else {
+		std::cout << "Failed to read data" << std::endl;
+		glfwTerminate();
+		return EXIT_FAILURE;
+	}
+	stbi_image_free(data);
 
     while (!glfwWindowShouldClose(window)) {
 		process_input(window);
@@ -98,8 +134,11 @@ int test() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// rendering stuff goes here
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
 		shader.use();
+		shader.set_int("cTex", 0);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
 		glBindVertexArray(0);
 
