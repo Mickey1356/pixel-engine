@@ -27,12 +27,28 @@ public:
 	bool update(double delta_time) override {
 		clear(pix_eng::Pixel());
 
+		if (get_key(pix_eng::Key::ESCAPE).pressed) {
+			return close();
+		}
+
 		std::stringstream ss;
 		ss << 1000.0 / delta_time << " fps";
-		glfwSetWindowTitle(window, ss.str().c_str());
+		set_title(ss.str());
 
-		// rect(x_pos, 50, 300, 400, pix_eng::Pixel(), pix_eng::Pixel(x_pos % 256, 0, 0, 255));
-		// x_pos = (x_pos + 1) % screen_width;
+		// point(x_pos, 20, pix_eng::Pixel(255, 255, 0, 255));
+		rect(x_pos, 50, 50, 50, pix_eng::Pixel(255, 255, 0, 255), pix_eng::Pixel(255, 255, 0, 255));
+
+		if (get_key(pix_eng::Key::RIGHT).held) {
+			x_pos = (x_pos + 1) % get_canvas_width();
+		}
+		if (get_key(pix_eng::Key::LEFT).held) {
+			x_pos--;
+			if (x_pos < 0) x_pos = get_canvas_width();
+		}
+
+		if (get_key(pix_eng::Key::M).pressed) {
+			set_screen_width(get_screen_width() == 640 ? 320 : 640);
+		}
 
 		// for (int x = 50; x < 100; x++)
 		// 	for (int y = 50; y < 100; y++)
@@ -44,14 +60,14 @@ public:
 };
 
 int test();
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 int main() {
 	// test();
 	MyTestEngine eng;
-	eng.start();
-	// if (eng.initialise(640, 480, "test")) {
-	// 	eng.start();
-	// }
+	if (eng.initialise()) {
+		eng.start();
+	}
 }
 
 int test() {
@@ -74,6 +90,9 @@ int test() {
 
 	// create the window and capture inputs
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
 
 	// vertex data for a square (will scale and transform later)
 	float vertices[] = {
@@ -155,4 +174,8 @@ void process_input(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
     }
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	glViewport(0, 0, width, height);
 }

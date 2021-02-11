@@ -11,13 +11,19 @@ namespace pix_eng {
     }
 
     // USER ENGINE FUNCTIONS
-    bool Engine::initialise(int width, int height, const std::string& eng_name) {
-        if (width < 0 || height < 0) return false;
+    bool Engine::initialise(int canvas_width, int canvas_height, int screen_width, int screen_height, const std::string& eng_name) {
+        if (canvas_width < 0 || canvas_height < 0) return false;
+        if (screen_width < 0 || screen_height < 0) return false;
         if (is_running) return false;
 
-        screen_width = width;
-        screen_height = height;
-        engine_name = eng_name;
+        this->canvas_width = canvas_width;
+        this->canvas_height = canvas_height;
+        this->screen_width = screen_width;
+        this->screen_height = screen_height;
+        if (!eng_name.empty()) engine_name = eng_name;
+
+        Engine::engine_instance = this;
+
         return true;
     }
 
@@ -33,6 +39,11 @@ namespace pix_eng {
         if (!clean_up()) return false;
 
         return true;
+    }
+
+    bool Engine::close() {
+        if (is_running) is_running = false;
+        return is_running;
     }
 
     // called when engine initialises
@@ -52,6 +63,38 @@ namespace pix_eng {
         return true;
     }
 
+    int Engine::get_screen_width() {
+        return screen_width;
+    }
+
+    int Engine::get_screen_height() {
+        return screen_height;
+    }
+
+    void Engine::set_screen_width(int width) {
+        screen_width = width;
+        glfwSetWindowSize(window, screen_width, screen_height);
+    }
+
+    void Engine::set_screen_height(int height) {
+        screen_height = height;
+        glfwSetWindowSize(window, screen_width, screen_height);
+    }
+
+    int Engine::get_canvas_width() {
+        return canvas_width;
+    }
+
+    int Engine::get_canvas_height() {
+        return canvas_height;
+    }
+
+    void Engine::set_title(const std::string& title) {
+        glfwSetWindowTitle(window, title.c_str());
+    }
+
+
+
     // ENGINE WORKINGS
     // setup opengl contexts
     bool Engine::prepare() {
@@ -60,6 +103,40 @@ namespace pix_eng {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        // map glfw input to the engine's representation
+        map_kb[GLFW_KEY_UNKNOWN] = Key::UNKNOWN;
+        
+        map_kb[GLFW_KEY_SPACE] = Key::SPACE; map_kb[GLFW_KEY_APOSTROPHE] = Key::APOSTROPHE;
+        map_kb[GLFW_KEY_COMMA] = Key::COMMA; map_kb[GLFW_KEY_MINUS] = Key::MINUS; map_kb[GLFW_KEY_PERIOD] = Key::PERIOD;
+        map_kb[GLFW_KEY_SLASH] = Key::SLASH; map_kb[GLFW_KEY_SEMICOLON] = Key::SEMICOLON; map_kb[GLFW_KEY_EQUAL] = Key::EQUAL;
+
+        map_kb[GLFW_KEY_0] = Key::N0; map_kb[GLFW_KEY_1] = Key::N1; map_kb[GLFW_KEY_2] = Key::N2; map_kb[GLFW_KEY_3] = Key::N3; map_kb[GLFW_KEY_4] = Key::N4;
+        map_kb[GLFW_KEY_5] = Key::N5; map_kb[GLFW_KEY_6] = Key::N6; map_kb[GLFW_KEY_7] = Key::N7; map_kb[GLFW_KEY_8] = Key::N8; map_kb[GLFW_KEY_9] = Key::N9;
+
+        map_kb[GLFW_KEY_A] = Key::A; map_kb[GLFW_KEY_B] = Key::B; map_kb[GLFW_KEY_C] = Key::C; map_kb[GLFW_KEY_D] = Key::D; map_kb[GLFW_KEY_E] = Key::E;
+        map_kb[GLFW_KEY_F] = Key::F; map_kb[GLFW_KEY_G] = Key::G; map_kb[GLFW_KEY_H] = Key::H; map_kb[GLFW_KEY_I] = Key::I; map_kb[GLFW_KEY_J] = Key::J;
+        map_kb[GLFW_KEY_K] = Key::K; map_kb[GLFW_KEY_L] = Key::L; map_kb[GLFW_KEY_M] = Key::M; map_kb[GLFW_KEY_N] = Key::N; map_kb[GLFW_KEY_O] = Key::O;
+        map_kb[GLFW_KEY_P] = Key::P; map_kb[GLFW_KEY_Q] = Key::Q; map_kb[GLFW_KEY_R] = Key::R; map_kb[GLFW_KEY_S] = Key::S; map_kb[GLFW_KEY_T] = Key::T;
+        map_kb[GLFW_KEY_U] = Key::U; map_kb[GLFW_KEY_V] = Key::V; map_kb[GLFW_KEY_W] = Key::W; map_kb[GLFW_KEY_X] = Key::X; map_kb[GLFW_KEY_Y] = Key::Y;
+        map_kb[GLFW_KEY_Z] = Key::Z;
+
+        map_kb[GLFW_KEY_LEFT_BRACKET] = Key::LEFT_BRACKET; map_kb[GLFW_KEY_BACKSLASH] = Key::BACKSLASH;
+        map_kb[GLFW_KEY_RIGHT_BRACKET] = Key::RIGHT_BRACKET; map_kb[GLFW_KEY_GRAVE_ACCENT] = Key::TILDE;
+
+        map_kb[GLFW_KEY_ESCAPE] = Key::ESCAPE; map_kb[GLFW_KEY_ENTER] = Key::ENTER; map_kb[GLFW_KEY_TAB] = Key::TAB;
+        map_kb[GLFW_KEY_BACKSPACE] = Key::BACKSPACE; map_kb[GLFW_KEY_INSERT] = Key::INSERT; map_kb[GLFW_KEY_DELETE] = Key::DELETE;
+
+        map_kb[GLFW_KEY_RIGHT] = Key::RIGHT; map_kb[GLFW_KEY_LEFT] = Key::LEFT; map_kb[GLFW_KEY_DOWN] = Key::DOWN; map_kb[GLFW_KEY_UP] = Key::UP;
+        
+        map_kb[GLFW_KEY_F1] = Key::F1; map_kb[GLFW_KEY_F2] = Key::F2; map_kb[GLFW_KEY_F3] = Key::F3;
+        map_kb[GLFW_KEY_F4] = Key::F4; map_kb[GLFW_KEY_F5] = Key::F5; map_kb[GLFW_KEY_F6] = Key::F6;
+        map_kb[GLFW_KEY_F7] = Key::F7; map_kb[GLFW_KEY_F8] = Key::F8; map_kb[GLFW_KEY_F9] = Key::F9;
+        map_kb[GLFW_KEY_F10] = Key::F10; map_kb[GLFW_KEY_F11] = Key::F11; map_kb[GLFW_KEY_F12] = Key::F12;
+
+        map_kb[GLFW_KEY_LEFT_SHIFT] = Key::L_SHIFT; map_kb[GLFW_KEY_LEFT_CONTROL] = Key::L_CTRL; map_kb[GLFW_KEY_LEFT_ALT] = Key::L_ALT;
+        map_kb[GLFW_KEY_RIGHT_SHIFT] = Key::R_SHIFT; map_kb[GLFW_KEY_RIGHT_CONTROL] = Key::R_CTRL; map_kb[GLFW_KEY_RIGHT_ALT] = Key::R_ALT;
+                        
         return true;
     }
 
@@ -105,12 +182,16 @@ namespace pix_eng {
             std::cout << "Failed to initialise GLAD" << std::endl;
             return false;
         }
-
-        // show the window
+        // set window viewport
         glViewport(0, 0, screen_width, screen_height);
+
 
         // create canvas and font sprites
         if (!construct_canvas() || !construct_font()) is_running = false;
+
+        // set some callbacks
+        glfwSetFramebufferSizeCallback(window, window_resize_callback); // resizing the window
+        glfwSetKeyCallback(window, keyboard_callback); // keyboard input
 
         // reset the times
         time_1 = glfwGetTime() * 1000.0;
@@ -132,7 +213,27 @@ namespace pix_eng {
         time_1 = time_2;
 
         // check input events
+        // we are now comparing the new state with the old state
+        for (int i = 0; i < NUM_KEYS; i++) {
+            // reset the keyboard states that are only active for a single frame
+            keyboard_cur[i].pressed = false;
+            keyboard_cur[i].released = false;
 
+            // if the new state is different from the old state
+            if (keyboard_new[i] != keyboard_old[i]) {
+                // if the new state is true
+                if (keyboard_new[i]) {
+                    // then pressed and held will be true
+                    keyboard_cur[i].pressed = true;
+                    keyboard_cur[i].held = true;
+                } else {
+                    keyboard_cur[i].released = true;
+                    keyboard_cur[i].held = false;
+                }
+            }
+            // the new state is now the old state
+            keyboard_old[i] = keyboard_new[i];
+        }
 
         // do user update
         if (!update(delta_time)) {
@@ -157,7 +258,7 @@ namespace pix_eng {
 
     // initialises canvas sprite
     bool Engine::construct_canvas() {
-        canvas_sprite = new Sprite(screen_width, screen_height);
+        canvas_sprite = new Sprite(canvas_width, canvas_height);
 
         // define the canvas quad and indices
         float canvas_quad[] = {
@@ -175,7 +276,10 @@ namespace pix_eng {
         // generate the texture
         glGenTextures(1, &canvas_texture);
         glBindTexture(GL_TEXTURE_2D, canvas_texture);
+        
+        // set filter to nearest neighbour (for the pixelly look)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         // generate the buffer objects
         glGenVertexArrays(1, &canvas_vao);
@@ -297,5 +401,28 @@ namespace pix_eng {
         for (int i = 0; i < pixels; i++) m[i] = c;
     }
 
+
+    // CALLBACK/INPUT FUNCTIONS
+    Button Engine::get_key(Key k) {
+        return keyboard_cur[k];
+    }
+
+    void Engine::window_resize_callback(GLFWwindow* window, int width, int height) {
+	    glViewport(0, 0, width, height);
+    }
+
+    void Engine::keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+        // use mp_kb to turn key into the engine's representation
+        int eng_rep = engine_instance->map_kb[key];
+
+        // set the appropriate flag for the engine's representation
+        if (action == GLFW_PRESS) {
+            engine_instance->keyboard_new[eng_rep] = true;
+        } else if (action == GLFW_RELEASE) {
+            engine_instance->keyboard_new[eng_rep] = false;
+        }
+    }
+
+    Engine* Engine::engine_instance = nullptr;
     std::atomic<bool> Engine::is_running { false };
 }

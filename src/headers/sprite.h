@@ -9,6 +9,7 @@ namespace pix_eng {
     struct Pixel {
         uint8_t r = 0, g = 0, b = 0, a = 255;
         Pixel();
+        Pixel(uint8_t r, uint8_t g, uint8_t b);
         Pixel(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     };
 

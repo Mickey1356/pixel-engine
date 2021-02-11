@@ -9,11 +9,34 @@
 #include <iostream>
 #include <thread>
 #include <string>
+#include <map>
 
 #include "sprite.h"
 #include "shader.h"
 
 namespace pix_eng {
+
+    // we create space for 128 keys (even though we are only using 77)
+    const int NUM_KEYS = 128;
+
+    struct Button {
+        bool pressed = false; // true on the frame when the button is pressed
+        bool released = false; // true on the frame when the button is released
+        bool held = false; // true on all frames from when button is pressed to when it is released
+    };
+
+    // list valid keys (we are going to use a normal US keyboard for now)
+    enum Key {
+        UNKNOWN,
+        SPACE, APOSTROPHE, COMMA, MINUS, PERIOD, SLASH, SEMICOLON, EQUAL,
+        N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, // number keys
+        A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+        LEFT_BRACKET, BACKSLASH, RIGHT_BRACKET, TILDE,
+        ESCAPE, ENTER, TAB, BACKSPACE, INSERT, DELETE,
+        RIGHT, LEFT, DOWN, UP,
+        F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+        L_SHIFT, L_CTRL, L_ALT, R_SHIFT, R_CTRL, R_ALT,
+    };
 
     class Engine {
     public: // constructors
@@ -22,9 +45,11 @@ namespace pix_eng {
 
     public: // user engine functions
         // change the default screen sizes, call before start
-        bool initialise(int width, int height, const std::string& eng_name);
+        bool initialise(int canvas_width=640, int canvas_height=480, int screen_width=640, int screen_height=480, const std::string& eng_name="");
         // user called: call prepare, start thread, wait for thread to finish
         bool start();
+        // user called: used to quit the engine
+        bool close();
         // called when engine initialises
         virtual bool create();
         // called every frame
@@ -32,7 +57,14 @@ namespace pix_eng {
         // called when engine stops
         virtual bool destroy();
 
-    public: // engine workings
+        // getters and setters for some engine variables
+        int get_screen_width(); int get_screen_height();
+        void set_screen_width(int width); void set_screen_height(int height);
+        int get_canvas_width(); int get_canvas_height();
+        void set_title(const std::string& title);
+
+
+    private: // engine workings
         // setup opengl contexts
         bool prepare();
         // threaded function, first calls create, then continuously updates engine, then calls destroy
@@ -73,8 +105,15 @@ namespace pix_eng {
         void text(int x, int y, const std::string& text, Pixel c);
         // clears the screen with fill c
         void clear(Pixel c);
+
+    public: // callback and input functions
+        Button get_key(Key k);
+        // for resizing
+        static void window_resize_callback(GLFWwindow* window, int width, int height);
+        static void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
         
-    public: // additional variables
+    private: // additional variables
+        int canvas_width = 640, canvas_height = 480;
         int screen_width = 640, screen_height = 480;
         std::string engine_name = "Pixel Engine";
 
@@ -91,9 +130,14 @@ namespace pix_eng {
         unsigned int canvas_vbo, canvas_vao, canvas_ebo;
         Shader canvas_shader;
 
-        // canvas quad
-        // static float canvas_quad[];
-        // static int canvas_indices[];
+        // input buttons
+        // maintain a static variable that keeps track of the engine instance (so the static callback can modify instance variables)
+        static Engine* engine_instance;
+        std::map<int, int> map_kb;
+
+        Button keyboard_cur[NUM_KEYS] = { 0 };
+        bool keyboard_old[NUM_KEYS] = { 0 };
+        bool keyboard_new[NUM_KEYS] = { 0 };
     };
 }
 
