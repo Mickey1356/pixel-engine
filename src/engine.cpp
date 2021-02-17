@@ -185,13 +185,14 @@ namespace pix_eng {
         // set window viewport
         glViewport(0, 0, screen_width, screen_height);
 
-
         // create canvas and font sprites
         if (!construct_canvas() || !construct_font()) is_running = false;
 
         // set some callbacks
         glfwSetFramebufferSizeCallback(window, window_resize_callback); // resizing the window
         glfwSetKeyCallback(window, keyboard_callback); // keyboard input
+        glfwSetMouseButtonCallback(window, mouse_button_callback); // mouse button input
+        glfwSetCursorPosCallback(window, mouse_pos_callback); // mouse position
 
         // reset the times
         time_1 = glfwGetTime() * 1000.0;
@@ -214,6 +215,7 @@ namespace pix_eng {
 
         // check input events
         // we are now comparing the new state with the old state
+        // keyboard input
         for (int i = 0; i < NUM_KEYS; i++) {
             // reset the keyboard states that are only active for a single frame
             keyboard_cur[i].pressed = false;
@@ -234,6 +236,29 @@ namespace pix_eng {
             // the new state is now the old state
             keyboard_old[i] = keyboard_new[i];
         }
+
+        // mouse input
+        for (int i = 0; i < NUM_MOUSE; i++) {
+            // reset the keyboard states that are only active for a single frame
+            mbtn_cur[i].pressed = false;
+            mbtn_cur[i].released = false;
+
+            // if the new state is different from the old state
+            if (mbtn_new[i] != mbtn_old[i]) {
+                // if the new state is true
+                if (mbtn_new[i]) {
+                    // then pressed and held will be true
+                    mbtn_cur[i].pressed = true;
+                    mbtn_cur[i].held = true;
+                } else {
+                    mbtn_cur[i].released = true;
+                    mbtn_cur[i].held = false;
+                }
+            }
+            // the new state is now the old state
+            mbtn_old[i] = mbtn_new[i];
+        }
+
 
         // do user update
         if (!update(delta_time)) {
@@ -403,24 +428,71 @@ namespace pix_eng {
 
 
     // CALLBACK/INPUT FUNCTIONS
+    // get the current status of a keyboard key
     Button Engine::get_key(Key k) {
         return keyboard_cur[k];
     }
 
+    // get the current status of a mouse button (LMB: 0, RMB: 1, MID: 2)
+    Button Engine::get_mouse_btn(int button) {
+        if (button >= 0 && button < NUM_MOUSE) return mbtn_cur[button];
+        else return Button();
+    }
+
+    // get absolute x position of mouse
+    double Engine::get_mouseX_abs() {
+        return mouseX;
+    }
+
+    // get absolution y position of mouse
+    double Engine::get_mouseY_abs() {
+        return mouseY;
+    }
+
+    // get relative x position of mouse (0 is left, 1 is right)
+    double Engine::get_mouseX_rel() {
+        return (double) mouseX / screen_width;
+    }
+
+    // get relative y position of mouse (0 is up, 1 is down)
+    double Engine::get_mouseY_rel() {
+        return (double) mouseY / screen_height;
+    }
+
+
     void Engine::window_resize_callback(GLFWwindow* window, int width, int height) {
-	    glViewport(0, 0, width, height);
+        int w, h;
+        glfwGetFramebufferSize(window, &w, &h);
+	    glViewport(0, 0, w, h);
     }
 
     void Engine::keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-        // use mp_kb to turn key into the engine's representation
-        int eng_rep = engine_instance->map_kb[key];
+        if (engine_instance->map_kb.count(key) != 0) {
+            // use mp_kb to turn key into the engine's representation
+            int eng_rep = engine_instance->map_kb[key];
 
-        // set the appropriate flag for the engine's representation
-        if (action == GLFW_PRESS) {
-            engine_instance->keyboard_new[eng_rep] = true;
-        } else if (action == GLFW_RELEASE) {
-            engine_instance->keyboard_new[eng_rep] = false;
+            // set the appropriate flag for the engine's representation
+            if (action == GLFW_PRESS) {
+                engine_instance->keyboard_new[eng_rep] = true;
+            } else if (action == GLFW_RELEASE) {
+                engine_instance->keyboard_new[eng_rep] = false;
+            }
         }
+    }
+
+    void Engine::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+        if (button >= 0 && button < NUM_MOUSE) {
+            if (action == GLFW_PRESS) {
+                engine_instance->mbtn_new[button] = true;
+            } else if (action == GLFW_RELEASE) {
+                engine_instance->mbtn_new[button] = false;
+            }
+        }
+    }
+
+    void Engine::mouse_pos_callback(GLFWwindow* window, double x, double y) {
+        engine_instance->mouseX = x;
+        engine_instance->mouseY = y;
     }
 
     Engine* Engine::engine_instance = nullptr;

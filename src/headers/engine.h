@@ -18,6 +18,8 @@ namespace pix_eng {
 
     // we create space for 128 keys (even though we are only using 77)
     const int NUM_KEYS = 128;
+    // glfw supports 8 mouse buttons
+    const int NUM_MOUSE = 8;
 
     struct Button {
         bool pressed = false; // true on the frame when the button is pressed
@@ -108,9 +110,17 @@ namespace pix_eng {
 
     public: // callback and input functions
         Button get_key(Key k);
+        Button get_mouse_btn(int button);
+        double get_mouseX_abs();
+        double get_mouseY_abs();
+        double get_mouseX_rel();
+        double get_mouseY_rel();
+
         // for resizing
         static void window_resize_callback(GLFWwindow* window, int width, int height);
         static void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+        static void mouse_pos_callback(GLFWwindow* window, double x, double y);
         
     private: // additional variables
         int canvas_width = 640, canvas_height = 480;
@@ -131,13 +141,19 @@ namespace pix_eng {
         Shader canvas_shader;
 
         // input buttons
-        // maintain a static variable that keeps track of the engine instance (so the static callback can modify instance variables)
+        // maintain a static variable that keeps track of the engine instance (so static callbacks can modify instance variables)
         static Engine* engine_instance;
         std::map<int, int> map_kb;
 
         Button keyboard_cur[NUM_KEYS] = { 0 };
         bool keyboard_old[NUM_KEYS] = { 0 };
         bool keyboard_new[NUM_KEYS] = { 0 };
+
+        Button mbtn_cur[NUM_MOUSE] = { 0 };
+        bool mbtn_old[NUM_MOUSE] = { 0 };
+        bool mbtn_new[NUM_MOUSE] = { 0 };
+
+        double mouseX = 0, mouseY = 0;
     };
 }
 

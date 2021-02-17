@@ -19,6 +19,7 @@ class MyTestEngine : public pix_eng::Engine {
 
 public:
 	int x_pos = 0;
+	int y_pos = 50;
 
 	bool create() override {
 		return true;
@@ -36,18 +37,23 @@ public:
 		set_title(ss.str());
 
 		// point(x_pos, 20, pix_eng::Pixel(255, 255, 0, 255));
-		rect(x_pos, 50, 50, 50, pix_eng::Pixel(255, 255, 0, 255), pix_eng::Pixel(255, 255, 0, 255));
+		rect(x_pos, y_pos, 50, 50, pix_eng::Pixel(255, 255, 0, 255), pix_eng::Pixel(255, 255, 0, 255));
 
-		if (get_key(pix_eng::Key::RIGHT).held) {
+		if (get_key(pix_eng::Key::RIGHT).held || get_mouse_btn(1).held) {
 			x_pos = (x_pos + 1) % get_canvas_width();
 		}
-		if (get_key(pix_eng::Key::LEFT).held) {
+		if (get_key(pix_eng::Key::LEFT).held || get_mouse_btn(2).held) {
 			x_pos--;
 			if (x_pos < 0) x_pos = get_canvas_width();
 		}
 
 		if (get_key(pix_eng::Key::M).pressed) {
 			set_screen_width(get_screen_width() == 640 ? 320 : 640);
+		}
+
+		if (get_mouse_btn(0).held) {
+			x_pos = get_mouseX_rel() * get_canvas_width();
+			y_pos = get_mouseY_rel() * get_canvas_height();
 		}
 
 		// for (int x = 50; x < 100; x++)

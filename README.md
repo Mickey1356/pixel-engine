@@ -10,10 +10,10 @@ Done:
 - Engine window
 - Canvas rendering
 - Keyboard input
+- Mouse input
 - Draw pixel and rect (in any colour)
 
 Todo:
-- Mouse input
 - Drawing functions
 - Drawing text
 - Drawing images
