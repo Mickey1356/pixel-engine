@@ -467,8 +467,47 @@ namespace pix_eng {
     }
 
     // draws text at (x, y) with fill c
-    void Engine::text(int x, int y, const std::string& text, Pixel c) {
+    void Engine::text(int x, int y, int scale, const std::string& text, Pixel c) {
+        int x_off = 0, y_off = 0;
+        for (auto &ch : text) {
+            // newline means move to next line
+            if (ch == '\n') {
+                y_off++;
+                x_off = 0;
+                continue;
+            }
 
+            // convert index into x,y (charset is 16 x 6 chars)
+            int index = ch - ' ';
+
+            // if invalid character, leave an empty space
+            if (index < 0 || index > NUM_CHARS_X * NUM_CHARS_Y) {
+                x_off++;
+                continue;
+            }
+
+            int x_ind = index % NUM_CHARS_X;
+            int y_ind = index / NUM_CHARS_X;
+
+            // each char is 8x8 pixels
+            int sx = x_ind * CHAR_SIZE;
+            int sy = y_ind * CHAR_SIZE;
+
+            // write one character
+            for (int i = 0; i < CHAR_SIZE; i++) {
+                for (int j = 0; j < CHAR_SIZE; j++) {
+                    Pixel p = font_sprite->get_pixel(sx + i, sy + j);
+                    if (p.a > 0) {
+                        for (int xx = 0; xx < scale; xx++) {
+                            for (int yy = 0; yy < scale; yy++) {
+                                point(x + x_off * CHAR_SIZE * scale + i * scale + xx, y + y_off * CHAR_SIZE * scale + j * scale + yy, c);
+                            }
+                        }
+                    }
+                }
+            }
+            x_off++;
+        }
     }
 
     // clears the screen with fill c

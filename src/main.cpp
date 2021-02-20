@@ -55,11 +55,13 @@ public:
 		}
 
 		if (get_mouse_btn(0).held) {
-			x_pos = get_mouseX_rel() * get_canvas_width();
-			y_pos = get_mouseY_rel() * get_canvas_height();
+			x_pos = (int) floor(get_mouseX_rel() * get_canvas_width());
+			y_pos = (int) floor(get_mouseY_rel() * get_canvas_height());
 		}
 
 		draw_sprite(100, 100, font_sprite);
+
+		text(50, 50, 1, "THE\nQUICK\nBROWN\nFOX\nJUMPS\nOVER\nTHE\nLAZY\nDOG.", pix_eng::Pixel(255, 255, 255));
 
 		return true;
 	}

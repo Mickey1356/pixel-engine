@@ -20,6 +20,10 @@ namespace pix_eng {
     const int NUM_KEYS = 128;
     // glfw supports 8 mouse buttons
     const int NUM_MOUSE = 8;
+    // font sprite info
+    const int NUM_CHARS_X = 16;
+    const int NUM_CHARS_Y = 6;
+    const int CHAR_SIZE = 8;
 
     struct Button {
         bool pressed = false; // true on the frame when the button is pressed
@@ -104,7 +108,7 @@ namespace pix_eng {
         // draws a sprite at (x, y)
         void draw_sprite(int x, int y, Sprite* sprite);
         // draws text at (x, y) with fill c
-        void text(int x, int y, const std::string& text, Pixel c);
+        void text(int x, int y, int scale, const std::string& text, Pixel c);
         // clears the screen with fill c
         void clear(Pixel c);
 
