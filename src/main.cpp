@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 #include <iostream>
@@ -26,18 +25,22 @@ public:
 	}
 
 	bool update(double delta_time) override {
-		clear(pix_eng::Pixel());
-
 		if (get_key(pix_eng::Key::ESCAPE).pressed) {
 			return close();
 		}
+
+		clear(pix_eng::Pixel());
 
 		std::stringstream ss;
 		ss << 1000.0 / delta_time << " fps";
 		set_title(ss.str());
 
+		rect(400, 200, 20, 20, pix_eng::Pixel(255, 0, 0, 100), pix_eng::Pixel(255, 0, 0, 100));
+
 		// point(x_pos, 20, pix_eng::Pixel(255, 255, 0, 255));
-		rect(x_pos, y_pos, 50, 50, pix_eng::Pixel(255, 255, 0, 255), pix_eng::Pixel(255, 255, 0, 255));
+		rect(x_pos, y_pos, 150, 50, pix_eng::Pixel(255, 255, 0, 128), pix_eng::Pixel(255, 255, 0, 128));
+
+		rect(300, 200, 20, 20, pix_eng::Pixel(255, 0, 0, 100), pix_eng::Pixel(255, 0, 0, 100));
 
 		if (get_key(pix_eng::Key::RIGHT).held || get_mouse_btn(1).held) {
 			x_pos = (x_pos + 1) % get_canvas_width();
@@ -56,9 +59,7 @@ public:
 			y_pos = get_mouseY_rel() * get_canvas_height();
 		}
 
-		// for (int x = 50; x < 100; x++)
-		// 	for (int y = 50; y < 100; y++)
-		// 		point(x, y, pix_eng::Pixel(rand() % 256, rand() % 256, rand() % 256, 255));
+		draw_sprite(100, 100, font_sprite);
 
 		return true;
 	}

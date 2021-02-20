@@ -194,6 +194,10 @@ namespace pix_eng {
         glfwSetMouseButtonCallback(window, mouse_button_callback); // mouse button input
         glfwSetCursorPosCallback(window, mouse_pos_callback); // mouse position
 
+        // enable alpha blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         // reset the times
         time_1 = glfwGetTime() * 1000.0;
         time_2 = glfwGetTime() * 1000.0;
@@ -267,7 +271,7 @@ namespace pix_eng {
         }
 
         // background fill
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // draw canvas to screen
@@ -324,16 +328,20 @@ namespace pix_eng {
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // build the shader
-        canvas_shader = Shader("res/shaders/canvas.vert", "res/shaders/canvas.frag");
+        // build the shaders
+        // shaders are stored in res/defaults/canvas.[frag|vert]
+        canvas_shader = Shader("res/defaults/canvas.vert", "res/defaults/canvas.frag");
 
         return true;
     }
 
     // compiles and loads the default font
     bool Engine::construct_font() {
-        
-        return true;
+        // default font is the atari character set limited to the printable ascii characters
+        // font data (sprite data) is stored in res/defaults/default_font.png 
+        font_sprite = new Sprite("res/defaults/font.png");
+        if (font_sprite) return true;
+        else return false;
     }
 
     // draw canvas to screen
@@ -362,7 +370,43 @@ namespace pix_eng {
     // draws a point at (x, y)
     void Engine::point(int x, int y, Pixel p) {
         if (!canvas_sprite) return;
-        canvas_sprite->set_pixel(x, y, p);
+
+        // get original pixel colour
+        Pixel op = canvas_sprite->get_pixel(x, y);
+
+        // convert to doubles (0 - 1)
+        double or = op.r / 255.0, og = op.g / 255.0, ob = op.b / 255.0, oa = op.a / 255.0;
+        // same with the target pixel
+        double tr = p.r / 255.0, tg = p.g / 255.0, tb = p.b / 255.0, ta = p.a / 255.0;
+
+        // premultiply the alphas
+        or *= oa; og *= oa; ob *= oa;
+        tr *= ta; tg *= ta; tb *= ta;
+
+        // get new alpha
+        double na = ta + (1 - ta) * oa;
+
+        // over operator
+        double nr, ng, nb;
+        nr = tr + (1 - ta) * or;
+        ng = tg + (1 - ta) * og;
+        nb = tb + (1 - ta) * ob;
+
+        // divide out the alpha (if alpha is non-zero)
+        if (na > 0) {
+            nr /= na; ng /= na; nb /= na;
+        }
+
+        // convert back to ints
+        uint8_t ir, ig, ib, ia;
+        ir = (uint8_t) floor(nr * 255.0);
+        ig = (uint8_t) floor(ng * 255.0);
+        ib = (uint8_t) floor(nb * 255.0);
+        ia = (uint8_t) floor(na * 255.0);
+
+        Pixel np = Pixel(ir, ig, ib, ia);
+
+        canvas_sprite->set_pixel(x, y, np);
     }
 
     // draws a line from (x1, y1) to (x2, y2)
@@ -385,18 +429,22 @@ namespace pix_eng {
     }
 
     void Engine::rect(int x1, int y1, int w, int h, Pixel s, Pixel f) {
-        for (int x = x1; x < x1 + w; x++) {
-            for (int y = y1; y < y1 + h; y++) {
+
+        // draw the inside (offset by 1 to include the edges)
+        for (int x = x1 + 1; x < x1 + w - 1; x++) {
+            for (int y = y1 + 1; y < y1 + h - 1; y++) {
                 point(x, y, f);
             }
         }
+
+        // draw the edges
         for (int x = x1; x < x1 + w; x++) {
             point(x, y1, s);
-            point(x, y1 + h, s);
+            point(x, y1 + h - 1, s);
         }
-        for (int y = y1; y < y1 + h; y++) {
+        for (int y = y1 + 1; y < y1 + h - 1; y++) {
             point(x1, y, s);
-            point(x1 + w, y, s);
+            point(x1 + w - 1, y, s);
         }
     }
 
@@ -410,8 +458,12 @@ namespace pix_eng {
     }
 
     // draws a sprite at (x, y)
-    void Engine::sprite(int x, int y, const Sprite* sprite) {
-
+    void Engine::draw_sprite(int x, int y, Sprite* sprite) {
+        for (int i = 0; i < sprite->get_width(); i++) {
+            for (int j = 0; j < sprite->get_height(); j++) {
+                point(x + i, y + j, sprite->get_pixel(i, j));
+            }
+        }
     }
 
     // draws text at (x, y) with fill c
@@ -462,6 +514,8 @@ namespace pix_eng {
 
     void Engine::window_resize_callback(GLFWwindow* window, int width, int height) {
         int w, h;
+        engine_instance->screen_width = width;
+        engine_instance->screen_height = height;
         glfwGetFramebufferSize(window, &w, &h);
 	    glViewport(0, 0, w, h);
     }

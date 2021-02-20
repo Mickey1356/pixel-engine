@@ -1,6 +1,8 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#include <stb_image.h>
+
 #include <string>
 #include <iostream>
 

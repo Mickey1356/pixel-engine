@@ -102,7 +102,7 @@ namespace pix_eng {
         void triangle(int x1, int y1, int x2, int y2, int x3, int y3, Pixel s);
         void triangle(int x1, int y1, int x2, int y2, int x3, int y3, Pixel s, Pixel f);
         // draws a sprite at (x, y)
-        void sprite(int x, int y, const Sprite* sprite);
+        void draw_sprite(int x, int y, Sprite* sprite);
         // draws text at (x, y) with fill c
         void text(int x, int y, const std::string& text, Pixel c);
         // clears the screen with fill c
@@ -122,7 +122,7 @@ namespace pix_eng {
         static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
         static void mouse_pos_callback(GLFWwindow* window, double x, double y);
         
-    private: // additional variables
+    public: // additional variables
         int canvas_width = 640, canvas_height = 480;
         int screen_width = 640, screen_height = 480;
         std::string engine_name = "Pixel Engine";

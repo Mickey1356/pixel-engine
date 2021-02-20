@@ -1,3 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "sprite.h"
 
 namespace pix_eng {
@@ -14,7 +16,26 @@ namespace pix_eng {
 
     // create a sprite from image
     Sprite::Sprite(const std::string& image) {
+        // make sure to flip the image vertically
+        stbi_set_flip_vertically_on_load(true);
+        int channels;
+        unsigned char *data = stbi_load(image.c_str(), &width, &height, &channels, 4);
+        if (data) {
+            std::cout << channels << std::endl;
+            if (sprite_data) delete[] sprite_data;
 
+            sprite_data = new Pixel[width * height];
+            for (int i = 0; i < width * height; i++) {
+                unsigned char r = data[4 * i];
+                unsigned char g = data[4 * i + 1];
+                unsigned char b = data[4 * i + 2];
+                unsigned char a = data[4 * i + 3];
+                sprite_data[i] = Pixel(r, g, b, a);
+            }
+        } else {
+            std::cout << "Failed to read sprite: " << image << std::endl;
+        }
+        stbi_image_free(data);
     }
 
     // create an empty sprite with width w and height h
