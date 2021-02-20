@@ -93,6 +93,10 @@ namespace pix_eng {
         glfwSetWindowTitle(window, title.c_str());
     }
 
+    double Engine::get_time() {
+        return glfwGetTime();
+    }
+
 
 
     // ENGINE WORKINGS

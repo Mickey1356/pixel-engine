@@ -12,9 +12,9 @@ Done:
 - Keyboard input
 - Mouse input
 - Draw pixel and rect (in any colour)
+- Drawing text
 
 Todo:
 - Drawing functions
-- Drawing text
 - Drawing images
 - Sound?

@@ -38,7 +38,7 @@ public:
 		rect(400, 200, 20, 20, pix_eng::Pixel(255, 0, 0, 100), pix_eng::Pixel(255, 0, 0, 100));
 
 		// point(x_pos, 20, pix_eng::Pixel(255, 255, 0, 255));
-		rect(x_pos, y_pos, 150, 50, pix_eng::Pixel(255, 255, 0, 128), pix_eng::Pixel(255, 255, 0, 128));
+		rect(x_pos, y_pos, 150, 100, pix_eng::Pixel(255, 255, 0, 128), pix_eng::Pixel(255, 255, 0, 128));
 
 		rect(300, 200, 20, 20, pix_eng::Pixel(255, 0, 0, 100), pix_eng::Pixel(255, 0, 0, 100));
 
@@ -61,7 +61,7 @@ public:
 
 		draw_sprite(100, 100, font_sprite);
 
-		text(50, 50, 1, "THE\nQUICK\nBROWN\nFOX\nJUMPS\nOVER\nTHE\nLAZY\nDOG.", pix_eng::Pixel(255, 255, 255));
+		text(50, 50, 2, "THE\nQUICK\nBROWN\nFOX\nJUMPS\nOVER\nTHE\nLAZY\nDOG.", pix_eng::Pixel(0, 255, 0));
 
 		return true;
 	}

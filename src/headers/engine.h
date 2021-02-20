@@ -68,6 +68,7 @@ namespace pix_eng {
         void set_screen_width(int width); void set_screen_height(int height);
         int get_canvas_width(); int get_canvas_height();
         void set_title(const std::string& title);
+        double get_time();
 
 
     private: // engine workings
