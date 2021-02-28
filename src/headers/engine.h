@@ -14,7 +14,7 @@
 #include "sprite.h"
 #include "shader.h"
 
-namespace pix_eng {
+namespace pix2d {
 
     // we create space for 128 keys (even though we are only using 77)
     const int NUM_KEYS = 128;

@@ -2,7 +2,7 @@
 
 #include "sprite.h"
 
-namespace pix_eng {
+namespace pix2d {
     // pixel constructors
     Pixel::Pixel() {}
     Pixel::Pixel(uint8_t r, uint8_t g, uint8_t b) : r{r}, g{g}, b{b} {}

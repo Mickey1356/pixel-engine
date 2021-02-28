@@ -1,6 +1,6 @@
 #include "engine.h"
 
-namespace pix_eng {
+namespace pix2d {
     Engine::Engine() {
         
     }
@@ -415,7 +415,25 @@ namespace pix_eng {
 
     // draws a line from (x1, y1) to (x2, y2)
     void Engine::line(int x1, int y1, int x2, int y2, Pixel p) {
-
+        // Bresenham's line algorithm
+        int dx = abs(x1 - x2);
+        int dy = -abs(y1 - y2);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int err = dx + dy;
+        while (true) {
+            point(x1, y1, p);
+            if (x1 == x2 && y1 == y2) break;
+            int e2 = 2 * err;
+            if (e2 >= dy) {
+                err += dy;
+                x1 += sx;
+            }
+            if (e2 <= dx) {
+                err += dx;
+                y1 += sy;
+            }
+        }
     }
 
     // draws a circle at (x1, y1) with radius r with stroke s, and fill f
@@ -429,7 +447,15 @@ namespace pix_eng {
 
     // draws a rect at (x1, y1) to (x1 + w, y1 + h) with stroke s and fill f
     void Engine::rect(int x1, int y1, int w, int h, Pixel s) {
-
+        // draw the edges
+        for (int x = x1; x < x1 + w; x++) {
+            point(x, y1, s);
+            point(x, y1 + h - 1, s);
+        }
+        for (int y = y1 + 1; y < y1 + h - 1; y++) {
+            point(x1, y, s);
+            point(x1 + w - 1, y, s);
+        }
     }
 
     void Engine::rect(int x1, int y1, int w, int h, Pixel s, Pixel f) {

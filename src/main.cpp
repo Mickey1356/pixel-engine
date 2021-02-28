@@ -14,58 +14,80 @@ const int SCR_HEIGHT = 600;
 
 void process_input(GLFWwindow* window);
 
-class MyTestEngine : public pix_eng::Engine {
+class MyTestEngine : public pix2d::Engine {
 
 public:
 	int x_pos = 0;
 	int y_pos = 50;
 
+	pix2d::Sprite* t_sprite;
+
 	bool create() override {
 		return true;
 	}
 
+	bool destroy() override {
+		return true;
+	}
+
 	bool update(double delta_time) override {
-		if (get_key(pix_eng::Key::ESCAPE).pressed) {
+		if (get_key(pix2d::Key::ESCAPE).pressed) {
 			return close();
 		}
 
-		clear(pix_eng::Pixel());
+		clear(pix2d::Pixel());
 
 		std::stringstream ss;
 		ss << 1000.0 / delta_time << " fps";
 		set_title(ss.str());
 
-		rect(400, 200, 20, 20, pix_eng::Pixel(255, 0, 0, 100), pix_eng::Pixel(255, 0, 0, 100));
+		rect(400, 200, 20, 20, pix2d::Pixel(255, 0, 0, 100), pix2d::Pixel(255, 0, 0, 100));
 
 		// point(x_pos, 20, pix_eng::Pixel(255, 255, 0, 255));
-		rect(x_pos, y_pos, 150, 100, pix_eng::Pixel(255, 255, 0, 128), pix_eng::Pixel(255, 255, 0, 128));
+		// rect(x_pos, y_pos, 150, 100, pix2d::Pixel(255, 255, 0, 128), pix2d::Pixel(255, 255, 0, 128));
 
-		rect(300, 200, 20, 20, pix_eng::Pixel(255, 0, 0, 100), pix_eng::Pixel(255, 0, 0, 100));
+		rect(350, 200, 20, 20, pix2d::Pixel(255, 0, 0, 100), pix2d::Pixel(255, 0, 0, 100));
 
-		if (get_key(pix_eng::Key::RIGHT).held || get_mouse_btn(1).held) {
-			x_pos = (x_pos + 1) % get_canvas_width();
-		}
-		if (get_key(pix_eng::Key::LEFT).held || get_mouse_btn(2).held) {
-			x_pos--;
-			if (x_pos < 0) x_pos = get_canvas_width();
-		}
-
-		if (get_key(pix_eng::Key::M).pressed) {
-			set_screen_width(get_screen_width() == 640 ? 320 : 640);
-		}
+		rect(300, 200, 20, 20, pix2d::Pixel(0, 0, 255, 255));
 
 		if (get_mouse_btn(0).held) {
 			x_pos = (int) floor(get_mouseX_rel() * get_canvas_width());
 			y_pos = (int) floor(get_mouseY_rel() * get_canvas_height());
 		}
 
-		draw_sprite(100, 100, font_sprite);
+		int step = 100;
 
-		text(50, 50, 2, "THE\nQUICK\nBROWN\nFOX\nJUMPS\nOVER\nTHE\nLAZY\nDOG.", pix_eng::Pixel(0, 255, 0));
+		for (int x = 5; x < get_canvas_width(); x+=step) {
+			for (int y = 5; y < get_canvas_height(); y+=step) {
+				line(x_pos, y_pos, x, y, pix2d::WHITE);
+			}
+		}
+
+		// line(100, 100, 150, 100, pix2d::YELLOW);
+		// line(100, 100, 100, 150, pix2d::YELLOW);
+		// line(100, 100, 50, 100, pix2d::YELLOW);
+		// line(100, 100, 100, 50, pix2d::YELLOW);
+
+		// line(100, 100, 150, 150, pix2d::RED);
+		// line(100, 100, 50, 150, pix2d::RED);
+		// line(100, 100, 50, 50, pix2d::RED);
+		// line(100, 100, 150, 50, pix2d::RED);
+		
+		// line(100, 100, 125, 150, pix2d::CYAN);
+		// line(100, 100, 150, 125, pix2d::CYAN);
+		// line(100, 100, 75, 150, pix2d::CYAN);
+		// line(100, 100, 150, 75, pix2d::CYAN);
+
+		// line(100, 100, 50, 125, pix2d::PURPLE);
+		// line(100, 100, 125, 50, pix2d::PURPLE);
+		// line(100, 100, 75, 50, pix2d::PURPLE);
+		// line(100, 100, 50, 75, pix2d::PURPLE);
+
+
+		// text(50, 50, 2, "THE\nQUICK\nBROWN\nFOX\nJUMPS\nOVER\nTHE\nLAZY\nDOG.", pix_eng::Pixel(0, 255, 0));
 
 		return true;
 	}
-
 };
 
 int test();
